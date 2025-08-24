@@ -220,17 +220,17 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/HappySR">
-                    <img src="https://avatars.githubusercontent.com/u/149225300?v=4" width="100;" alt="HappySR"/>
-                    <br />
-                    <sub><b>HappySR</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/PearlGrell">
                     <img src="https://avatars.githubusercontent.com/u/185500672?v=4" width="100;" alt="PearlGrell"/>
                     <br />
                     <sub><b>PearlGrell</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/HappySR">
+                    <img src="https://avatars.githubusercontent.com/u/149225300?v=4" width="100;" alt="HappySR"/>
+                    <br />
+                    <sub><b>HappySR</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -241,26 +241,33 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/Vrushabh102">
+                    <img src="https://avatars.githubusercontent.com/u/127824424?v=4" width="100;" alt="Vrushabh102"/>
+                    <br />
+                    <sub><b>Vrushabh102</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/taralshah09">
+                    <img src="https://avatars.githubusercontent.com/u/134496373?v=4" width="100;" alt="taralshah09"/>
+                    <br />
+                    <sub><b>taralshah09</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/harshit-shekhar">
                     <img src="https://avatars.githubusercontent.com/u/127797166?v=4" width="100;" alt="harshit-shekhar"/>
                     <br />
                     <sub><b>harshit-shekhar</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Shibai419">
                     <img src="https://avatars.githubusercontent.com/u/224984725?v=4" width="100;" alt="Shibai419"/>
                     <br />
                     <sub><b>Shibai419</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/taralshah09">
-                    <img src="https://avatars.githubusercontent.com/u/134496373?v=4" width="100;" alt="taralshah09"/>
-                    <br />
-                    <sub><b>taralshah09</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -284,6 +291,8 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                     <sub><b>Unnati-coder25</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/22sakshiagarwal">
                     <img src="https://avatars.githubusercontent.com/u/150451687?v=4" width="100;" alt="22sakshiagarwal"/>
@@ -291,8 +300,6 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                     <sub><b>22sakshiagarwal</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/NavyasreeBalu">
                     <img src="https://avatars.githubusercontent.com/u/182435415?v=4" width="100;" alt="NavyasreeBalu"/>
@@ -301,17 +308,17 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/Atomic-Shadow7002">
-                    <img src="https://avatars.githubusercontent.com/u/191123414?v=4" width="100;" alt="Atomic-Shadow7002"/>
-                    <br />
-                    <sub><b>Atomic-Shadow7002</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/garys-demons">
                     <img src="https://avatars.githubusercontent.com/u/178498812?v=4" width="100;" alt="garys-demons"/>
                     <br />
                     <sub><b>garys-demons</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/Atomic-Shadow7002">
+                    <img src="https://avatars.githubusercontent.com/u/191123414?v=4" width="100;" alt="Atomic-Shadow7002"/>
+                    <br />
+                    <sub><b>Atomic-Shadow7002</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -328,6 +335,8 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                     <sub><b>aaryapoyrekar</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/alzz-26">
                     <img src="https://avatars.githubusercontent.com/u/56277823?v=4" width="100;" alt="alzz-26"/>
@@ -335,8 +344,6 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                     <sub><b>alzz-26</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/vansh909">
                     <img src="https://avatars.githubusercontent.com/u/133160909?v=4" width="100;" alt="vansh909"/>
