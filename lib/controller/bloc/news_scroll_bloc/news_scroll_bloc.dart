@@ -23,16 +23,25 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
     on<UpdateNewsIndex>(_onUpdateNewsIndex);
   }
 
+  @override
+  void onEvent(NewsEvent event) {
+    super.onEvent(event);
+    Log.d('<NEWS_SCROLL_BLOC> Event received: ${event.runtimeType}');
+  }
+
   Future<void> _onFetchInitialNews(
       FetchInitialNews event,
       Emitter<NewsState> emit,
       ) async {
     try {
-      _currentCategory = event.category;
-      _page = 1;
+  Log.d('<NEWS_SCROLL_BLOC> FetchInitialNews requested for category: ${event.category}');
+  _currentCategory = event.category;
+  _page = 1;
 
-      emit(NewsLoading());
-      final articles = await _fetchCategoryNews();
+  Log.d('<NEWS_SCROLL_BLOC> Starting API call to fetch initial news (page=$_page, category=$_currentCategory)');
+  emit(NewsLoading());
+  final articles = await _fetchCategoryNews();
+  Log.d('<NEWS_SCROLL_BLOC> Finished API call to fetch initial news: received ${articles.length} articles');
       emit(
         NewsLoaded(
           articles: articles,
@@ -42,7 +51,8 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         ),
       );
     } catch (e) {
-      emit(NewsError('Failed to load news: $e'));
+  Log.e('<NEWS_SCROLL_BLOC> Error fetching initial news: $e');
+  emit(NewsError('Failed to load news: $e'));
     }
   }
 
@@ -57,18 +67,17 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       return;
     }
 
+    // mark loading more
     emit(currentState.copyWith(isLoadingMore: true));
 
     try {
       _page++;
 
-      // DEBUG: Log.d which page you are fetching
-      Log.d('--- FETCHING PAGE: $_page FOR CATEGORY: $_currentCategory ---');
+      Log.d('<NEWS_SCROLL_BLOC> Starting API call to fetch next page: page=$_page, category=$_currentCategory');
 
       final newArticles = await _fetchCategoryNews(page: _page);
 
-      // DEBUG: Log.d the number of new articles received
-      Log.d('--- RECEIVED ${newArticles.length} NEW ARTICLES ---');
+      Log.d('<NEWS_SCROLL_BLOC> Finished API call for page $_page: received ${newArticles.length} articles');
 
       emit(NewsLoaded(
         articles: List.of(currentState.articles)..addAll(newArticles),
@@ -79,8 +88,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       ));
 
     } catch (e) {
-      // DEBUG: Log.d any errors that occur during the fetch
-      Log.e('---!!! ERROR FETCHING PAGE $_page: $e !!!---');
+      Log.e('<NEWS_SCROLL_BLOC> Error fetching page $_page: $e');
       _page--;
       emit(currentState.copyWith(isLoadingMore: false));
     }
