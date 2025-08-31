@@ -258,10 +258,24 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/garys-demons">
+                    <img src="https://avatars.githubusercontent.com/u/178498812?v=4" width="100;" alt="garys-demons"/>
+                    <br />
+                    <sub><b>garys-demons</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/Shibai419">
                     <img src="https://avatars.githubusercontent.com/u/224984725?v=4" width="100;" alt="Shibai419"/>
                     <br />
                     <sub><b>Shibai419</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/alzz-26">
+                    <img src="https://avatars.githubusercontent.com/u/56277823?v=4" width="100;" alt="alzz-26"/>
+                    <br />
+                    <sub><b>alzz-26</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -271,11 +285,20 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                     <sub><b>suto6</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/Vriti62">
                     <img src="https://avatars.githubusercontent.com/u/136335873?v=4" width="100;" alt="Vriti62"/>
                     <br />
                     <sub><b>Vriti62</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/Vinuthna-Pesara">
+                    <img src="https://avatars.githubusercontent.com/u/172952195?v=4" width="100;" alt="Vinuthna-Pesara"/>
+                    <br />
+                    <sub><b>Vinuthna-Pesara</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -285,8 +308,6 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                     <sub><b>Unnati-coder25</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/22sakshiagarwal">
                     <img src="https://avatars.githubusercontent.com/u/150451687?v=4" width="100;" alt="22sakshiagarwal"/>
@@ -302,17 +323,19 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/garys-demons">
-                    <img src="https://avatars.githubusercontent.com/u/178498812?v=4" width="100;" alt="garys-demons"/>
-                    <br />
-                    <sub><b>garys-demons</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/Atomic-Shadow7002">
                     <img src="https://avatars.githubusercontent.com/u/191123414?v=4" width="100;" alt="Atomic-Shadow7002"/>
                     <br />
                     <sub><b>Atomic-Shadow7002</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/dharapandya85">
+                    <img src="https://avatars.githubusercontent.com/u/109461918?v=4" width="100;" alt="dharapandya85"/>
+                    <br />
+                    <sub><b>dharapandya85</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -327,15 +350,6 @@ We welcome contributions! Please read our [Contributing Guidelines](.github/CONT
                     <img src="https://avatars.githubusercontent.com/u/138993783?v=4" width="100;" alt="aaryapoyrekar"/>
                     <br />
                     <sub><b>aaryapoyrekar</b></sub>
-                </a>
-            </td>
-		</tr>
-		<tr>
-            <td align="center">
-                <a href="https://github.com/alzz-26">
-                    <img src="https://avatars.githubusercontent.com/u/56277823?v=4" width="100;" alt="alzz-26"/>
-                    <br />
-                    <sub><b>alzz-26</b></sub>
                 </a>
             </td>
             <td align="center">
