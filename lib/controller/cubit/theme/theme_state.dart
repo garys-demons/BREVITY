@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:brevity/utils/logger.dart';
 import '../../../models/theme_model.dart';
 
 enum ThemeStatus { initial, loading, loaded, error }
@@ -15,10 +16,12 @@ class ThemeState extends Equatable {
   });
 
   factory ThemeState.initial() {
-    return ThemeState(
+    final state = ThemeState(
       currentTheme: AppTheme.defaultTheme,
       status: ThemeStatus.initial,
     );
+    Log.d('<THEME_STATE> initial state: theme=${state.currentTheme.name}, status=${state.status}');
+    return state;
   }
 
   ThemeState copyWith({
@@ -26,11 +29,15 @@ class ThemeState extends Equatable {
     ThemeStatus? status,
     String? errorMessage,
   }) {
-    return ThemeState(
+    final newState = ThemeState(
       currentTheme: currentTheme ?? this.currentTheme,
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
     );
+
+    Log.d('<THEME_STATE> copyWith created: theme=${newState.currentTheme.name}, status=${newState.status}');
+
+    return newState;
   }
 
   @override

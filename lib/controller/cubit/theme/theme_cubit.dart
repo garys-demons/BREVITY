@@ -13,7 +13,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
   // Initialize theme from storage or use default
   Future<void> initializeTheme() async {
-    Log.d("Initializing theme...");
+  Log.d('<THEME_CUBIT> Initializing theme...');
     emit(state.copyWith(status: ThemeStatus.loading));
 
     try {
@@ -22,7 +22,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
       // Load the saved theme
       final savedTheme = await _themeService.loadTheme();
-      Log.i("Theme initialized with: ${savedTheme.name}");
+  Log.i('<THEME_CUBIT> Theme initialized with: ${savedTheme.name}');
 
       emit(
         state.copyWith(
@@ -30,8 +30,9 @@ class ThemeCubit extends Cubit<ThemeState> {
             status: ThemeStatus.loaded
         ),
       );
+      Log.d('<THEME_CUBIT> Emitted loaded theme: ${savedTheme.name}');
     } catch (e) {
-      Log.e("Error initializing theme: $e");
+  Log.e('<THEME_CUBIT> Error initializing theme: $e');
       emit(
         state.copyWith(
           currentTheme: AppTheme.defaultTheme,
@@ -44,7 +45,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
   // Change theme and persist it
   Future<void> changeTheme(AppTheme newTheme) async {
-    Log.d("Changing theme to: ${newTheme.name}");
+  Log.d('<THEME_CUBIT> Changing theme to: ${newTheme.name}');
 
     // Emit loading state
     emit(state.copyWith(status: ThemeStatus.loading));
@@ -54,7 +55,7 @@ class ThemeCubit extends Cubit<ThemeState> {
       final success = await _themeService.saveTheme(newTheme);
 
       if (success) {
-        Log.i("Theme saved successfully: ${newTheme.name}");
+        Log.i('<THEME_CUBIT> Theme saved successfully: ${newTheme.name}');
         emit(
           state.copyWith(
               currentTheme: newTheme,
@@ -62,17 +63,19 @@ class ThemeCubit extends Cubit<ThemeState> {
               errorMessage: null
           ),
         );
+        Log.d('<THEME_CUBIT> Emitted new theme: ${newTheme.name}');
       } else {
-        Log.w("Failed to save theme");
+        Log.w('<THEME_CUBIT> Failed to save theme');
         emit(
           state.copyWith(
             status: ThemeStatus.error,
             errorMessage: 'Failed to save theme',
           ),
         );
+        Log.d('<THEME_CUBIT> Emitted error state after failed save');
       }
     } catch (e) {
-      Log.e("Error changing theme: $e");
+  Log.e('<THEME_CUBIT> Error changing theme: $e');
       emit(
         state.copyWith(
           status: ThemeStatus.error,
@@ -84,7 +87,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
   // Toggle dark mode
   Future<void> toggleDarkMode(bool isDarkMode) async {
-    Log.d("Toggling dark mode to: $isDarkMode");
+  Log.d('<THEME_CUBIT> Toggling dark mode to: $isDarkMode');
     emit(state.copyWith(status: ThemeStatus.loading));
 
     try {
@@ -93,7 +96,7 @@ class ThemeCubit extends Cubit<ThemeState> {
       final success = await _themeService.saveTheme(newTheme);
 
       if (success) {
-        Log.i("Dark mode toggled successfully");
+        Log.i('<THEME_CUBIT> Dark mode toggled successfully');
         emit(
           state.copyWith(
               currentTheme: newTheme,
@@ -101,14 +104,16 @@ class ThemeCubit extends Cubit<ThemeState> {
               errorMessage: null
           ),
         );
+        Log.d('<THEME_CUBIT> Emitted theme after toggling dark mode: ${newTheme.name}');
       } else {
-        Log.w("Failed to toggle dark mode");
+        Log.w('<THEME_CUBIT> Failed to toggle dark mode');
         emit(
           state.copyWith(
             status: ThemeStatus.error,
             errorMessage: 'Failed to toggle dark mode',
           ),
         );
+        Log.d('<THEME_CUBIT> Emitted error state after failed dark mode toggle');
       }
     } catch (e) {
       Log.e("Error toggling dark mode: $e");
@@ -123,7 +128,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
   // Reset theme to default
   Future<void> resetTheme() async {
-    Log.d("Resetting theme to default");
+  Log.d('<THEME_CUBIT> Resetting theme to default');
     emit(state.copyWith(status: ThemeStatus.loading));
 
     try {
@@ -138,7 +143,8 @@ class ThemeCubit extends Cubit<ThemeState> {
         ),
       );
 
-      Log.i("Theme reset to default successfully");
+      Log.i('<THEME_CUBIT> Theme reset to default successfully: ${AppTheme.defaultTheme.name}');
+      Log.d('<THEME_CUBIT> Emitted default theme: ${AppTheme.defaultTheme.name}');
     } catch (e) {
       Log.e("Error resetting theme: $e");
       emit(
