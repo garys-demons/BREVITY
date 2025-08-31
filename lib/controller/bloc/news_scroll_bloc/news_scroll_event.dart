@@ -9,7 +9,9 @@ abstract class NewsEvent extends Equatable {
 
 class FetchInitialNews extends NewsEvent {
   final NewsCategory category;
-  const FetchInitialNews({this.category = NewsCategory.general});
+  FetchInitialNews({this.category = NewsCategory.general}) {
+    Log.d('<NEWS_SCROLL_EVENT> FetchInitialNews created for category: $category');
+  }
 
   @override
   List<Object> get props => [category];
@@ -18,7 +20,9 @@ class FetchInitialNews extends NewsEvent {
 class FetchNextPage extends NewsEvent {
   final int currentIndex;
   final NewsCategory category;
-  const FetchNextPage(this.currentIndex, this.category);
+  FetchNextPage(this.currentIndex, this.category) {
+    Log.d('<NEWS_SCROLL_EVENT> FetchNextPage created: pageTriggerIndex=$currentIndex, category=$category');
+  }
 
   @override
   List<Object> get props => [currentIndex, category];
@@ -26,7 +30,9 @@ class FetchNextPage extends NewsEvent {
 
 class UpdateNewsIndex extends NewsEvent {
   final int newIndex;
-  const UpdateNewsIndex(this.newIndex);
+  UpdateNewsIndex(this.newIndex) {
+    Log.d('<NEWS_SCROLL_EVENT> UpdateNewsIndex created: newIndex=$newIndex');
+  }
 
   @override
   List<Object> get props => [newIndex];
