@@ -9,7 +9,11 @@ abstract class NewsState extends Equatable {
 
 class NewsInitial extends NewsState {}
 
-class NewsLoading extends NewsState {}
+class NewsLoading extends NewsState {
+  NewsLoading() {
+    Log.d('<NEWS_SCROLL_STATE> NewsLoading created');
+  }
+}
 
 class NewsLoaded extends NewsState {
   final List<Article> articles;
@@ -18,13 +22,15 @@ class NewsLoaded extends NewsState {
   final NewsCategory category;
   final int currentIndex;
 
-  const NewsLoaded({
+  NewsLoaded({
     required this.articles,
     this.hasReachedMax = false,
     this.isLoadingMore = false,
     required this.category,
     this.currentIndex = 0,
-  });
+  }) {
+    Log.d('<NEWS_SCROLL_STATE> NewsLoaded created: articles=${articles.length}, hasReachedMax=$hasReachedMax, isLoadingMore=$isLoadingMore, category=$category, currentIndex=$currentIndex');
+  }
 
   NewsLoaded copyWith({
     List<Article>? articles,
@@ -54,7 +60,9 @@ class NewsLoaded extends NewsState {
 
 class NewsError extends NewsState {
   final String message;
-  const NewsError(this.message);
+  NewsError(this.message) {
+    Log.e('<NEWS_SCROLL_STATE> NewsError created: $message');
+  }
 
   @override
   List<Object> get props => [message];

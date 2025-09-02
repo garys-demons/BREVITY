@@ -1,0 +1,11 @@
+Screens Included (Both Light & Dark Themes):
+- Opening Screen
+- Login Screen
+- Sign-Up Screen  
+
+Figma Link: https://www.figma.com/design/6ABmbnL1y5dxYylmxpJHvO/Brevity-GSSoC--25?node-id=0-1&t=mdxv3tSQSQ4nYrhO-1
+
+Notes:
+- This design covers both light and dark themes for consistency.
+- Use this reference when implementing theme switching in the app.
+- Ensure you have Figma access permissions before opening.

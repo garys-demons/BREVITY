@@ -35,6 +35,7 @@ class AuthService {
   // Initialize auth state (call this when app starts)
   Future<void> initializeAuth() async {
     try {
+      Log.i('<AUTH_SERVICE> initializeAuth started');
       final prefs = await SharedPreferences.getInstance();
       final storedToken = prefs.getString('accessToken');
 
@@ -54,7 +55,7 @@ class AuthService {
     } catch (e) {
       // Handle any errors during initialization, e.g., SharedPreferences error
       _authStateController.add(null);
-      Log.e('Error initializing auth: $e'); // For debugging
+      Log.e('<AUTH_SERVICE> Error initializing auth: $e'); // For debugging
     }
   }
 
@@ -66,6 +67,9 @@ class AuthService {
     File? profileImage, // Add this parameter
   }) async {
     try {
+      Log.i(
+        '<AUTH_SERVICE> signUpWithEmail started for email=$email, userName=$userName',
+      );
       final uri = Uri.parse('$_baseUrl/register');
       final request = http.MultipartRequest('POST', uri);
 
@@ -108,8 +112,25 @@ class AuthService {
         request.files.add(multipartFile);
       }
 
+      // Log request details
+      try {
+        final fileInfo = request.files
+            .map((f) => '${f.field}-${f.filename}')
+            .join(',');
+        Log.d(
+          '<AUTH_SERVICE> signUp request -> URL: $uri, headers: ${request.headers}, fields: ${request.fields}, files: $fileInfo',
+        );
+      } catch (e) {
+        Log.w('<AUTH_SERVICE> signUp request logging failed: $e');
+      }
+
       final streamedResponse = await request.send().timeout(_httpTimeout);
       final response = await http.Response.fromStream(streamedResponse);
+
+      // Log response details
+      Log.d(
+        '<AUTH_SERVICE> signUp response -> status: ${response.statusCode}, body: ${response.body}',
+      );
 
       if (response.statusCode == 201) {
         // Rest of your existing success handling code remains the same
@@ -147,13 +168,17 @@ class AuthService {
 
         // Notify listeners of auth state change
         _authStateController.add(_currentUser);
+        Log.i('<AUTH_SERVICE> signUpWithEmail succeeded for email=$email');
         return _currentUser;
       } else {
         final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> signUp failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
         throw Exception(errorData['message'] ?? 'Failed to create account');
       }
     } catch (e) {
-      Log.e('Sign up error: $e'); // For debugging
+      Log.e('<AUTH_SERVICE> Sign up error: $e'); // For debugging
       // Let the calling screen handle error display for better UX control
       rethrow;
     }
@@ -164,22 +189,37 @@ class AuthService {
     BuildContext? context,
   }) async {
     try {
+      Log.i('<AUTH_SERVICE> forgotPassword started for email=$email');
+      final uri = Uri.parse('$_baseUrl/forgot-password');
+      final body = json.encode({'email': email.trim()});
+      Log.d(
+        '<AUTH_SERVICE> forgotPassword request -> URL: $uri, headers: {"Content-Type": "application/json"}, body: $body',
+      );
+
       final response = await http.post(
-        Uri.parse('$_baseUrl/forgot-password'),
+        uri,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email.trim()}),
+        body: body,
+      );
+
+      Log.d(
+        '<AUTH_SERVICE> forgotPassword response -> status: ${response.statusCode}, body: ${response.body}',
       );
 
       if (response.statusCode == 200) {
         if (context != null && context.mounted) {
           _showSuccessSnackBar(context, 'Reset OTP sent to your email');
         }
+        Log.i('<AUTH_SERVICE> forgotPassword succeeded for email=$email');
       } else {
         final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> forgotPassword failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
         throw Exception(errorData['message'] ?? 'Failed to send reset OTP');
       }
     } catch (e) {
-      Log.e('Forgot password error: $e'); // For debugging
+      Log.e('<AUTH_SERVICE> Forgot password error: $e'); // For debugging
       // Let the calling screen handle error display for better UX control
       rethrow;
     }
@@ -192,27 +232,43 @@ class AuthService {
     BuildContext? context,
   }) async {
     try {
+      Log.i('<AUTH_SERVICE> resetPassword started for email=$email');
+      final uri = Uri.parse('$_baseUrl/reset-password');
+      final bodyMap = {
+        'email': email.trim(),
+        'token': otp.trim(),
+        'newPassword': newPassword.trim(),
+      };
+      final body = json.encode(bodyMap);
+      Log.d(
+        '<AUTH_SERVICE> resetPassword request -> URL: $uri, headers: {"Content-Type": "application/json"}, body: $body',
+      );
+
       final response = await http.post(
-        Uri.parse('$_baseUrl/reset-password'),
+        uri,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': email.trim(),
-          'token': otp.trim(),
-          'newPassword': newPassword.trim(),
-        }),
+        body: body,
+      );
+
+      Log.d(
+        '<AUTH_SERVICE> resetPassword response -> status: ${response.statusCode}, body: ${response.body}',
       );
 
       if (response.statusCode == 200) {
         if (context != null && context.mounted) {
           _showSuccessSnackBar(context, 'Password reset successfully');
+          Log.i('<AUTH_SERVICE> resetPassword succeeded for email=$email');
           return true;
         }
       } else {
         final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> resetPassword failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
         throw Exception(errorData['message'] ?? 'Failed to reset password');
       }
     } catch (e) {
-      Log.e('Reset password error: $e'); // For debugging
+      Log.e('<AUTH_SERVICE> Reset password error: $e'); // For debugging
       // Let the calling screen handle error display for better UX control
       rethrow;
     }
@@ -225,16 +281,21 @@ class AuthService {
     BuildContext? context,
   }) async {
     try {
+      Log.i('<AUTH_SERVICE> loginWithEmail started for email=$email');
+      final uri = Uri.parse('$_baseUrl/login');
+      final bodyMap = {'email': email.trim(), 'password': password.trim()};
+      final body = json.encode(bodyMap);
+      Log.d(
+        '<AUTH_SERVICE> login request -> URL: $uri, headers: {"Content-Type": "application/json"}, body: $body',
+      );
+
       final response = await http
-          .post(
-            Uri.parse('$_baseUrl/login'),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode({
-              'email': email.trim(),
-              'password': password.trim(),
-            }),
-          )
+          .post(uri, headers: {'Content-Type': 'application/json'}, body: body)
           .timeout(_httpTimeout);
+
+      Log.d(
+        '<AUTH_SERVICE> login response -> status: ${response.statusCode}, body: ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -277,10 +338,14 @@ class AuthService {
 
         // Notify listeners of auth state change
         _authStateController.add(_currentUser);
+        Log.i('<AUTH_SERVICE> loginWithEmail succeeded for email=$email');
         return _currentUser;
       } else if (response.statusCode == 401 || response.statusCode == 403) {
         // Email not verified or access denied - check if it's email verification issue
         final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> login failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
         if (errorData['message']?.contains('verify your email') == true ||
             errorData['message']?.contains('Email not verified') == true) {
           if (context != null && context.mounted) {
@@ -295,10 +360,13 @@ class AuthService {
         }
       } else {
         final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> login failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
         throw Exception(errorData['message'] ?? 'Login failed');
       }
     } catch (e) {
-      Log.e('Login error: $e'); // For debugging
+      Log.e('<AUTH_SERVICE> Login error: $e'); // For debugging
       // Let the calling screen handle error display for better UX control
       rethrow;
     }
@@ -306,14 +374,22 @@ class AuthService {
 
   Future<void> signOut({BuildContext? context}) async {
     try {
+      Log.i('<AUTH_SERVICE> signOut started');
       // Call logout endpoint if token exists
       if (_accessToken != null) {
-        await http.post(
-          Uri.parse('$_baseUrl/logout'),
+        final uri = Uri.parse('$_baseUrl/logout');
+        Log.d(
+          '<AUTH_SERVICE> signOut request -> URL: $uri, headers: {"Authorization": "Bearer $_accessToken", "Content-Type": "application/json"}',
+        );
+        final response = await http.post(
+          uri,
           headers: {
             'Authorization': 'Bearer $_accessToken',
             'Content-Type': 'application/json',
           },
+        );
+        Log.d(
+          '<AUTH_SERVICE> signOut response -> status: ${response.statusCode}, body: ${response.body}',
         );
       }
 
@@ -328,12 +404,14 @@ class AuthService {
       // Notify listeners of auth state change
       _authStateController.add(null);
 
+      Log.i('<AUTH_SERVICE> signOut local state cleared');
+
       if (context != null && context.mounted) {
         _showSuccessSnackBar(context, 'Successfully signed out');
         context.go('/login'); // Redirect to login page
       }
     } catch (e) {
-      Log.e('Logout error: $e'); // For debugging
+      Log.e('<AUTH_SERVICE> Logout error: $e'); // For debugging
       // Even if logout fails on server, clear local state
       _accessToken = null;
       _currentUser = null;
@@ -359,17 +437,26 @@ class AuthService {
     if (_accessToken == null) {
       throw Exception('No access token available');
     }
-
     try {
+      Log.i('<AUTH_SERVICE> refreshUser started');
+      final uri = Uri.parse('$_baseUrl/me');
+      Log.d(
+        '<AUTH_SERVICE> refreshUser request -> URL: $uri, headers: {"Authorization": "Bearer $_accessToken", "Content-Type": "application/json"}',
+      );
+
       final response = await http
           .get(
-            Uri.parse('$_baseUrl/me'),
+            uri,
             headers: {
               'Authorization': 'Bearer $_accessToken',
               'Content-Type': 'application/json',
             },
           )
           .timeout(_httpTimeout);
+
+      Log.d(
+        '<AUTH_SERVICE> refreshUser response -> status: ${response.statusCode}, body: ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -392,15 +479,21 @@ class AuthService {
         );
 
         _authStateController.add(_currentUser);
+        Log.i('<AUTH_SERVICE> refreshUser succeeded');
       } else if (response.statusCode == 401) {
         // Token expired or invalid
         await _clearLocalAuthState();
+        Log.w('<AUTH_SERVICE> refreshUser token expired (401)');
         throw Exception('Token expired');
       } else {
         final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> refreshUser failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
         throw Exception(errorData['message'] ?? 'Failed to refresh user data');
       }
     } on TimeoutException {
+      Log.e('<AUTH_SERVICE> refreshUser timeout');
       throw Exception('Network timeout. Please check your connection.');
     } catch (e) {
       // Only clear state if it's an auth error, not network error
@@ -408,13 +501,14 @@ class AuthService {
           e.toString().contains('401')) {
         await _clearLocalAuthState();
       }
-      Log.e('Error refreshing user: $e');
+      Log.e('<AUTH_SERVICE> Error refreshing user: $e');
       rethrow; // Re-throw to let caller handle the error
     }
   }
 
   // Clear local auth state without calling logout API
   Future<void> _clearLocalAuthState() async {
+    Log.i('<AUTH_SERVICE> Clearing local auth state');
     _accessToken = null;
     _currentUser = null;
 
@@ -429,19 +523,32 @@ class AuthService {
   // Email verification methods
   Future<void> resendVerificationEmail(String email) async {
     try {
+      Log.i('<AUTH_SERVICE> resendVerificationEmail started for email=$email');
+      final uri = Uri.parse('$_baseUrl/resend-verification');
+      final body = json.encode({'email': email.trim()});
+      Log.d(
+        '<AUTH_SERVICE> resendVerificationEmail request -> URL: $uri, headers: {"Content-Type": "application/json"}, body: $body',
+      );
+
       final response = await http
-          .post(
-            Uri.parse('$_baseUrl/resend-verification'),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode({'email': email.trim()}),
-          )
+          .post(uri, headers: {'Content-Type': 'application/json'}, body: body)
           .timeout(_httpTimeout);
+
+      Log.d(
+        '<AUTH_SERVICE> resendVerificationEmail response -> status: ${response.statusCode}, body: ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         // Success - verification email sent
+        Log.i(
+          '<AUTH_SERVICE> resendVerificationEmail succeeded for email=$email',
+        );
         return;
       } else if (response.statusCode == 400) {
         final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> resendVerificationEmail failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
         if (errorData['message']?.contains('already verified') == true) {
           throw Exception('Email is already verified');
         } else {
@@ -450,20 +557,31 @@ class AuthService {
           );
         }
       } else if (response.statusCode == 404) {
+        Log.e(
+          '<AUTH_SERVICE> resendVerificationEmail failed -> 404 user not found for email=$email',
+        );
         throw Exception('User not found with this email');
       } else if (response.statusCode >= 500) {
+        Log.e(
+          '<AUTH_SERVICE> resendVerificationEmail server error -> status: ${response.statusCode}',
+        );
         throw Exception('Server error. Please try again later.');
       } else {
         final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> resendVerificationEmail failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
         throw Exception(
           errorData['message'] ?? 'Failed to resend verification email',
         );
       }
     } on TimeoutException {
+      Log.e('<AUTH_SERVICE> resendVerificationEmail timeout');
       throw Exception(
         'Network timeout. Please check your connection and try again.',
       );
     } catch (e) {
+      Log.e('<AUTH_SERVICE> resendVerificationEmail error: $e');
       if (e is Exception) {
         rethrow; // Re-throw our custom exceptions
       }
