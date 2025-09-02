@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:lottie/lottie.dart';
 import 'package:flutter/material.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
@@ -14,25 +14,30 @@ const Color mutedText = Color(0xFF9AA8BF);
 
 class TutorialOverlay {
   static void showTutorial(BuildContext context, {
-    required GlobalKey swipeGestureKey,
+    required GlobalKey swipeRightKey,
+    required GlobalKey swipeUpKey,
     required GlobalKey chatbotKey,
     required GlobalKey headlineKey,
     required VoidCallback onFinish,
   }) {
     List<TargetFocus> targets = [];
 
-    // Target 1: Swipe gesture area
+    // Target 1: Swipe up for more news
     targets.add(
       TargetFocus(
-        identify: "swipe_gesture",
-        keyTarget: swipeGestureKey,
-        alignSkip: Alignment.bottomCenter,
-        enableOverlayTab: false,
+        identify: "swipe_up",
+        keyTarget: swipeUpKey,
+        alignSkip: Alignment.topCenter,
+        enableOverlayTab: true,
         contents: [
           TargetContent(
-            align: ContentAlign.right,
+            align: ContentAlign.custom,
+            customPosition: CustomTargetContentPosition(
+              top: MediaQuery.of(context).size.height * 0.15,
+            ),
             builder: (context, controller) {
               return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 32),
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
@@ -68,14 +73,14 @@ class TutorialOverlay {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
-                        Icons.swipe,
+                        Icons.swipe_up,
                         color: Colors.white,
                         size: 24,
                       ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      "Swipe Right to Access Categories",
+                      "Swipe Up for More News",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -86,7 +91,7 @@ class TutorialOverlay {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Swipe from left to right anywhere on the screen to navigate to different news categories.",
+                      "Swipe up to scroll through more news articles and stay updated.",
                       style: TextStyle(
                         color: mutedText,
                         fontSize: 14,
@@ -101,11 +106,99 @@ class TutorialOverlay {
           ),
         ],
         shape: ShapeLightFocus.RRect,
-        radius: 20,
+        radius: 15,
       ),
     );
 
-    // Target 2: News Headline for bookmarking
+// Target 2: Swipe right for dashboard
+    targets.add(
+      TargetFocus(
+        identify: "swipe_right",
+        keyTarget: swipeRightKey,
+        alignSkip: Alignment.bottomCenter,
+        enableOverlayTab: true,
+        contents: [
+          TargetContent(
+            align: ContentAlign.custom,
+            customPosition: CustomTargetContentPosition(
+              top: MediaQuery.of(context).size.height * 0.15,
+            ),
+            builder: (context, controller) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [panelTop, panelBottom],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: primaryA.withOpacity(0.3),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF8B5CF6), Color(0xFFA78BFA)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.swipe_right,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Swipe Right for Dashboard",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Swipe right to access categories, bookmarks, and settings.",
+                      style: TextStyle(
+                        color: mutedText,
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+        shape: ShapeLightFocus.RRect,
+        radius: 15,
+      ),
+    );
+
+    // Target 3: News Headline for bookmarking
     targets.add(
       TargetFocus(
         identify: "headline_bookmark",
@@ -189,7 +282,7 @@ class TutorialOverlay {
       ),
     );
 
-    // Target 3: Chatbot button
+    // Target 4: Chatbot button
     targets.add(
       TargetFocus(
         identify: "chatbot",
@@ -284,11 +377,17 @@ class TutorialOverlay {
       onFinish: () {
         onFinish();
       },
+      onClickTarget: (target) {
+        // Allow target clicks to pass through
+      },
+      onClickTargetWithTapPosition: (target, tapDetails) {
+        // Allow positioned clicks to pass through
+      },
       onClickOverlay: (target) {
         // Allow overlay clicks to continue tutorial
       },
       onSkip: () {
-        print("Skip button pressed!"); // Your print statement
+        print("Skip button pressed!");
         onFinish();
         return true;
       },

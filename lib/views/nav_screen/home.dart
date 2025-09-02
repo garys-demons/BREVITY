@@ -43,7 +43,8 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
   late PageController _pageController;
 
   // Tutorial keys
-  final GlobalKey _swipeGestureKey = GlobalKey();
+  final GlobalKey _swipeRightKey = GlobalKey();
+  final GlobalKey _swipeUpKey = GlobalKey();
   final GlobalKey _chatbotKey = GlobalKey();
   final GlobalKey _headlineKey = GlobalKey();
 
@@ -81,14 +82,15 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
   }
 
   void _showTutorial() {
-    print("Starting tutorial with keys:");
-    print("Swipe key: ${_swipeGestureKey.currentContext != null}");
-    print("Chatbot key: ${_chatbotKey.currentContext != null}");
-    print("Headline key: ${_headlineKey.currentContext != null}");
+    // print("Starting tutorial with keys:");
+    // print("Swipe key: ${_swipeGestureKey.currentContext != null}");
+    // print("Chatbot key: ${_chatbotKey.currentContext != null}");
+    // print("Headline key: ${_headlineKey.currentContext != null}");
 
     TutorialOverlay.showTutorial(
       context,
-      swipeGestureKey: _swipeGestureKey,
+      swipeRightKey: _swipeRightKey,
+      swipeUpKey: _swipeUpKey,
       chatbotKey: _chatbotKey,
       headlineKey: _headlineKey,
       onFinish: () async {
@@ -219,18 +221,18 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
               ),
             ),
           ),
-          // Add swipe gesture indicator
-          Positioned(
-            left: 0,
-            top: MediaQuery.of(context).size.height * 0.3,
+          // Add swipe right indicator (full screen)
+          Positioned.fill(
             child: Container(
-              key: _swipeGestureKey,
-              width: 80,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              key: _swipeRightKey,
+              color: Colors.transparent,
+            ),
+          ),
+// Add swipe up indicator (full screen)
+          Positioned.fill(
+            child: Container(
+              key: _swipeUpKey,
+              color: Colors.transparent,
             ),
           ),
         ],
