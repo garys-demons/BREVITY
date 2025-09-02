@@ -10,6 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:brevity/controller/services/reaction_service.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -211,6 +212,22 @@ class _NewsCardState extends State<_NewsCard> {
   void initState() {
     super.initState();
     initTts();
+    ReactionQueue().preloadReactions().then((_) {
+      try {
+        final liked = ReactionQueue().isArticleLiked(widget.article.url);
+        final disliked = ReactionQueue().isArticleDisliked(widget.article.url);
+        if (mounted) {
+          setState(() {
+            isLiked = liked;
+            isDisliked = disliked;
+          });
+        }
+      } catch (_) {
+        // ignore
+      }
+    }).catchError((_) {
+      // ignore preload errors
+    });
   }
 
   initTts() {
@@ -257,6 +274,10 @@ class _NewsCardState extends State<_NewsCard> {
   }
 
   void _handleLike() {
+    // Optimistic UI update
+    final previousLiked = isLiked;
+    final previousDisliked = isDisliked;
+
     setState(() {
       if (isLiked) {
         isLiked = false;
@@ -265,10 +286,24 @@ class _NewsCardState extends State<_NewsCard> {
         isDisliked = false;
       }
     });
+
+    // Enqueue background API call. Errors are swallowed inside the queue.
+    if (isLiked && !previousLiked) {
+      ReactionQueue().enqueueLike(widget.article);
+      // If we had previously disliked and now switched to like, enqueue removal of dislike
+      if (previousDisliked) ReactionQueue().enqueueRemoveDislike(widget.article);
+    } else if (!isLiked && previousLiked) {
+      ReactionQueue().enqueueRemoveLike(widget.article);
+    }
+
     Log.d('Article ${isLiked ? 'liked' : 'unliked'}: ${widget.article.title}');
   }
 
   void _handleDislike() {
+    // Optimistic UI update
+    final previousDisliked = isDisliked;
+    final previousLiked = isLiked;
+
     setState(() {
       if (isDisliked) {
         isDisliked = false;
@@ -277,6 +312,14 @@ class _NewsCardState extends State<_NewsCard> {
         isLiked = false;
       }
     });
+
+    if (isDisliked && !previousDisliked) {
+      ReactionQueue().enqueueDislike(widget.article);
+      if (previousLiked) ReactionQueue().enqueueRemoveLike(widget.article);
+    } else if (!isDisliked && previousDisliked) {
+      ReactionQueue().enqueueRemoveDislike(widget.article);
+    }
+
     Log.d(
       'Article ${isDisliked ? 'disliked' : 'undisliked'}: ${widget.article.title}',
     );
