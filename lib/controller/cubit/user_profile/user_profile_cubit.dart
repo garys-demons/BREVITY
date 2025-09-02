@@ -260,14 +260,6 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     }
   }
 
-  bool _shouldRefreshProfile() {
-    // Don't refresh if we have valid user data and have loaded from server
-    if (state.user != null && state.hasLoadedFromServer) {
-      return false;
-    }
-    return true;
-  }
-
 // Add this new method for force refresh
   Future<void> forceRefreshProfile() async {
     emit(state.copyWith(status: UserProfileStatus.loading));
@@ -311,6 +303,31 @@ class UserProfileCubit extends Cubit<UserProfileState> {
   // Call this method after successful profile updates to reset the flag
   void markForRefresh() {
     emit(state.copyWith(hasLoadedFromServer: false));
+  }
+
+  // Delete user account
+  Future<void> deleteAccount({String? password, String? googleIdToken}) async {
+    try {
+      emit(state.copyWith(status: UserProfileStatus.loading));
+
+      await _authService.deleteAccount(
+        password: password,
+        googleIdToken: googleIdToken,
+      );
+
+      // Clear local profile data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_profile');
+
+      // Clear state
+      emit(UserProfileState());
+    } catch (e) {
+      emit(state.copyWith(
+        status: UserProfileStatus.error,
+        errorMessage: e.toString(),
+      ));
+      rethrow;
+    }
   }
 
   @override

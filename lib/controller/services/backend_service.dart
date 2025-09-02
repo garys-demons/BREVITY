@@ -31,7 +31,7 @@ class ApiService {
   /// Initialize tokens from storage
   Future<void> initializeTokens() async {
     final prefs = await SharedPreferences.getInstance();
-    _accessToken = prefs.getString('access_token');
+    _accessToken = prefs.getString('accessToken'); // Changed from 'access_token' to match AuthService
     _refreshToken = prefs.getString('refresh_token');
   }
 
@@ -41,7 +41,7 @@ class ApiService {
     _refreshToken = refreshToken;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', accessToken);
+    await prefs.setString('accessToken', accessToken); // Changed from 'access_token' to match AuthService
     await prefs.setString('refresh_token', refreshToken);
   }
 
@@ -51,7 +51,7 @@ class ApiService {
     _refreshToken = null;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
+    await prefs.remove('accessToken'); // Changed from 'access_token' to match AuthService
     await prefs.remove('refresh_token');
   }
 
