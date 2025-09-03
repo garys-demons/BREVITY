@@ -6,8 +6,8 @@ class TutorialService {
 
   static Future<bool> shouldShowTutorial() async {
     final prefs = await SharedPreferences.getInstance();
-    // return !(prefs.getBool(_tutorialKey) ?? false);
-    return true;
+    return !(prefs.getBool(_tutorialKey) ?? false);
+    // return true;
   }
 
   static Future<void> completeTutorial() async {
@@ -18,8 +18,8 @@ class TutorialService {
   // Home screen specific tutorial methods
   static Future<bool> shouldShowHomeScreenTutorial() async {
     final prefs = await SharedPreferences.getInstance();
-    // return !(prefs.getBool(_homeScreenTutorialKey) ?? false);
-    return true;
+    return !(prefs.getBool(_homeScreenTutorialKey) ?? false);
+    // return true;
   }
 
   static Future<void> completeHomeScreenTutorial() async {

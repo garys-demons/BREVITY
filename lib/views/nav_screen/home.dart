@@ -221,18 +221,15 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
               ),
             ),
           ),
-          // Add swipe right indicator (full screen)
+          // Tutorial target areas (invisible and non-blocking)
           Positioned.fill(
-            child: Container(
-              key: _swipeRightKey,
-              color: Colors.transparent,
-            ),
-          ),
-// Add swipe up indicator (full screen)
-          Positioned.fill(
-            child: Container(
-              key: _swipeUpKey,
-              color: Colors.transparent,
+            child: IgnorePointer(
+              child: Stack(
+                children: [
+                  Container(key: _swipeRightKey),
+                  Container(key: _swipeUpKey),
+                ],
+              ),
             ),
           ),
         ],

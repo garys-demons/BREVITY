@@ -121,7 +121,7 @@ class TutorialOverlay {
           TargetContent(
             align: ContentAlign.custom,
             customPosition: CustomTargetContentPosition(
-              top: MediaQuery.of(context).size.height * 0.15,
+              top: MediaQuery.of(context).size.height * 0.1,
             ),
             builder: (context, controller) {
               return Container(
