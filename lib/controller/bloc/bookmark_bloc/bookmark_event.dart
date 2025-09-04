@@ -14,8 +14,14 @@ class ToggleBookmarkEvent extends BookmarkEvent {
 
   @override
   List<Object> get props => [article];
+  
+  @override
+  String toString() => 'ToggleBookmarkEvent { article: ${article.id} }';
 }
 
 class LoadBookmarksEvent extends BookmarkEvent {
   const LoadBookmarksEvent();
+
+  @override
+  String toString() => 'LoadBookmarksEvent';
 }

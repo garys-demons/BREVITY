@@ -16,10 +16,13 @@ class BookmarkBloc extends Bloc<BookmarkEvent, BookmarkState> {
     ToggleBookmarkEvent event,
     Emitter<BookmarkState> emit,
   ) async {
+    _log("on<ToggleBookmarkEvent started with: ${event.article.id}")
     try {
       await repository.toggleBookmark(event.article);
       add(LoadBookmarksEvent());
-    } catch (e) {
+    } catch (e,stackTrace) {
+      _log("Error in ToggleBookmarkEvent:$e");
+      addError(e,stackTrace);
       emit(BookmarkError('Failed to toggle bookmark: $e'));
     }
   }
@@ -28,11 +31,28 @@ class BookmarkBloc extends Bloc<BookmarkEvent, BookmarkState> {
     LoadBookmarksEvent event,
     Emitter<BookmarkState> emit,
   ) async {
+    _log("on<LoadBookmarksEvent> started")
     try {
       final bookmarks = await repository.getBookmarks();
       emit(BookmarksLoaded(bookmarks));
-    } catch (e) {
+    } catch (e,stackTrace) {
+      _log("Error in LoadBookmarksEvent: $e");
+      addError(e,stackTrace);
       emit(BookmarkError('Failed to load bookmarks: $e'));
     }
+  }
+  @override
+  void onTransition(Transition<BookmarkEvent,BookmarkState> transition) {
+    super.onTransition(transition);
+    _log("Transition: ${transition.event}-> ${transition.nextState}");
+  }
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    super.onError(error, stackTrace);
+    _log("onError: $error\n$stackTrace");
+  }
+  void _log(String message) {
+    // Centralized logging format
+    print("BOOKMARK_BLOC:$message");
   }
 }
