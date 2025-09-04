@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:brevity/models/user_model.dart';
 import 'package:brevity/utils/logger.dart';
+import 'package:brevity/utils/api_config.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
@@ -16,8 +17,9 @@ class AuthService {
   factory AuthService() => _instance;
   AuthService._internal();
 
-  final String _baseUrl = 'https://brevity-backend-khaki.vercel.app/api/auth';
+  // final String _baseUrl = 'https://brevity-backend-khaki.vercel.app/api/auth';
   //static const String _baseUrl = 'http://10.0.2.2:5001/api/auth';
+  String get _baseUrl => ApiConfig.authUrl;
 
   // HTTP timeout duration
   static const Duration _httpTimeout = Duration(seconds: 30);
@@ -603,6 +605,77 @@ class AuthService {
     'emailVerified': _currentUser?.emailVerified,
     'isAuthenticated': isAuthenticated,
   };
+
+  // Delete user account
+  Future<void> deleteAccount({
+    String? password,
+    String? googleIdToken,
+    BuildContext? context,
+  }) async {
+    try {
+      Log.i('<AUTH_SERVICE> deleteAccount started');
+      
+      if (_accessToken == null) {
+        throw Exception('No access token available');
+      }
+
+      final uri = Uri.parse('${ApiConfig.usersUrl}/deleteAccount');
+      final body = <String, dynamic>{};
+      
+      // Add password for normal users, googleIdToken for OAuth users
+      if (password != null) {
+        body['password'] = password.trim();
+      }
+      if (googleIdToken != null) {
+        body['googleIdToken'] = googleIdToken;
+      }
+
+      Log.d(
+        '<AUTH_SERVICE> deleteAccount request -> URL: $uri, headers: {"Authorization": "Bearer $_accessToken", "Content-Type": "application/json"}',
+      );
+
+      final response = await http.delete(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(body),
+      ).timeout(_httpTimeout);
+
+      Log.d(
+        '<AUTH_SERVICE> deleteAccount response -> status: ${response.statusCode}, body: ${response.body}',
+      );
+
+      if (response.statusCode == 200) {
+        // Account deleted successfully
+        final data = json.decode(response.body);
+        Log.i('<AUTH_SERVICE> deleteAccount succeeded');
+
+        // Clear local state immediately
+        await _clearLocalAuthState();
+
+        if (context != null && context.mounted) {
+          _showSuccessSnackBar(context, data['message'] ?? 'Account deleted successfully');
+          context.go('/login');
+        }
+      } else {
+        final errorData = json.decode(response.body);
+        Log.e(
+          '<AUTH_SERVICE> deleteAccount failed -> status: ${response.statusCode}, body: ${response.body}',
+        );
+        throw Exception(errorData['message'] ?? 'Failed to delete account');
+      }
+    } catch (e) {
+      Log.e('<AUTH_SERVICE> Delete account error: $e');
+      rethrow;
+    }
+  }
+
+  // Helper method to check if current user is OAuth-only
+  bool get isOAuthOnlyUser {
+     return false;
+  }
 
   // Dispose of resources
   void dispose() {

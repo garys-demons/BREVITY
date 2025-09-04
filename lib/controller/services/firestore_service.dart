@@ -1,14 +1,16 @@
 import 'dart:io';
 
 import 'package:brevity/models/user_model.dart';
+import 'package:brevity/utils/api_config.dart';
 import 'package:brevity/utils/logger.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:http_parser/http_parser.dart';
 
 class UserRepository {
-  final String _baseUrl = 'https://brevity-backend-khaki.vercel.app/api/users';
+  String get _baseUrl => ApiConfig.usersUrl;
   String? _accessToken;
 
   // Singleton pattern
@@ -28,7 +30,7 @@ class UserRepository {
 
     try {
       final response = await http.get(
-        Uri.parse('https://brevity-backend-khaki.vercel.app/api/auth/me'),
+        Uri.parse('${ApiConfig.authUrl}/me'),
         headers: {
           'Authorization': 'Bearer $_accessToken',
           'Content-Type': 'application/json',
@@ -282,6 +284,35 @@ class UserRepository {
     } catch (e) {
       Log.e('FIRESTORE_SERVICE: Exception during image removal', e);
       throw Exception('Failed to remove profile image: $e');
+    }
+  }
+
+  // Delete user account
+  Future<void> deleteUserAccount({String? password, String? googleIdToken}) async {
+    try {
+      final body = <String, dynamic>{};
+      if (password != null) {
+        body['password'] = password;
+      }
+      if (googleIdToken != null) {
+        body['googleIdToken'] = googleIdToken;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/deleteAccount'),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(body),
+      );
+
+      if (response.statusCode != 200) {
+        final errorData = json.decode(response.body);
+        throw Exception(errorData['message'] ?? 'Failed to delete account');
+      }
+    } catch (e) {
+      throw Exception('Failed to delete account: $e');
     }
   }
 

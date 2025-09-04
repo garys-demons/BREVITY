@@ -30,10 +30,15 @@ class ApiService {
 
   /// Initialize tokens from storage
   Future<void> initializeTokens() async {
+
+    final prefs = await SharedPreferences.getInstance();
+    _accessToken = prefs.getString('accessToken'); // Changed from 'access_token' to match AuthService
+    _refreshToken = prefs.getString('refresh_token');
+
     try {
       Log.d('BACKEND_SERVICE: Initializing tokens from storage');
       final prefs = await SharedPreferences.getInstance();
-      _accessToken = prefs.getString('access_token');
+      _accessToken = prefs.getString('accesstoken');
       _refreshToken = prefs.getString('refresh_token');
 
       if (_accessToken != null) {
@@ -45,40 +50,57 @@ class ApiService {
       Log.e('BACKEND_SERVICE: Error initializing tokens', e);
       rethrow;
     }
+
   }
 
   /// Save tokens to storage
   Future<void> _saveTokens(String accessToken, String refreshToken) async {
+
+    _accessToken = accessToken;
+    _refreshToken = refreshToken;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('accessToken', accessToken);
+    await prefs.setString('refresh_token', refreshToken);
+
     try {
       Log.d('BACKEND_SERVICE: Saving tokens to storage');
       _accessToken = accessToken;
       _refreshToken = refreshToken;
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('access_token', accessToken);
+      await prefs.setString('accesstoken', accessToken);
       await prefs.setString('refresh_token', refreshToken);
       Log.i('BACKEND_SERVICE: Tokens saved successfully');
     } catch (e) {
       Log.e('BACKEND_SERVICE: Error saving tokens', e);
       rethrow;
     }
+
   }
 
   /// Clear tokens from storage
   Future<void> _clearTokens() async {
+    _accessToken = null;
+    _refreshToken = null;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('accessToken'); // Changed from 'access_token' to match AuthService
+    await prefs.remove('refresh_token');
     try {
       Log.d('BACKEND_SERVICE: Clearing tokens from storage');
       _accessToken = null;
       _refreshToken = null;
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('access_token');
+      await prefs.remove('accesstoken');
       await prefs.remove('refresh_token');
       Log.i('BACKEND_SERVICE: Tokens cleared successfully');
     } catch (e) {
       Log.e('BACKEND_SERVICE: Error clearing tokens', e);
       rethrow;
     }
+
   }
 
   /// Get auth headers

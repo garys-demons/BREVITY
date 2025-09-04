@@ -402,6 +402,31 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     }
   }
 
+  // Delete user account
+  Future<void> deleteAccount({String? password, String? googleIdToken}) async {
+    try {
+      emit(state.copyWith(status: UserProfileStatus.loading));
+
+      await _authService.deleteAccount(
+        password: password,
+        googleIdToken: googleIdToken,
+      );
+
+      // Clear local profile data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_profile');
+
+      // Clear state
+      emit(UserProfileState());
+    } catch (e) {
+      emit(state.copyWith(
+        status: UserProfileStatus.error,
+        errorMessage: e.toString(),
+      ));
+      rethrow;
+    }
+  }
+
   @override
   Future<void> close() {
     try {

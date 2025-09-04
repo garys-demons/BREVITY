@@ -300,98 +300,161 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   void _confirmDeleteProfile() {
     final theme = Theme.of(context);
+    final TextEditingController passwordController = TextEditingController();
+    bool isLoading = false;
+
     showDialog(
       context: context,
-      builder:
-          (context) => BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-            child: Dialog(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.red.withAlpha(50),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.warning_amber_rounded,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withAlpha(50),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Color.fromARGB(255, 198, 48, 37),
+                    size: 60,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Delete Account',
+                    style: TextStyle(
                       color: Color.fromARGB(255, 198, 48, 37),
-                      size: 60,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Delete Profile',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 198, 48, 37),
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'This action cannot be undone. All your data will be permanently deleted.',
+                    style: theme.textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Password input field (shown for all users, but server will determine if needed)
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Enter your password to confirm',
+                      hintText: 'Password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      prefixIcon: const Icon(Icons.lock),
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Are you sure you want to delete your profile? This action cannot be undone.',
-                      style: theme.textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey.shade700,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: isLoading ? null : () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey.shade700,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
                           ),
-                          child: const Text('Cancel'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              198,
-                              48,
-                              37,
-                            ),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Text('Delete'),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () async {
+                                final password = passwordController.text.trim();
+                                
+                                setState(() {
+                                  isLoading = true;
+                                });
+
+                                try {
+                                  await AuthService().deleteAccount(
+                                    password: password.isEmpty ? null : password,
+                                    context: context,
+                                  );
+                                  
+                                  // If we reach here, deletion was successful
+                                  // The AuthService will handle navigation
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                } catch (e) {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  
+                                  if (context.mounted) {
+                                    String errorMessage = e.toString();
+                                    // Remove "Exception: " prefix if present
+                                    if (errorMessage.startsWith('Exception: ')) {
+                                      errorMessage = errorMessage.substring(11);
+                                    }
+                                    
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(errorMessage),
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 198, 48, 37),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text('Delete Account'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
+        ),
+      ),
     );
   }
 
@@ -1100,7 +1163,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 child: _buildListTile(
                                   icon: Icons.delete_forever,
                                   iconColor: Colors.red,
-                                  title: 'Delete Profile',
+                                  title: 'Delete Account',
                                   titleColor: Colors.red,
                                   subtitle: 'Permanently erase your data',
                                   themeColor: Colors.red,
