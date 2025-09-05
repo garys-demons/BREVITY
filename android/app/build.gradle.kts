@@ -56,7 +56,7 @@ android {
 
     defaultConfig {
         applicationId = "com.unity.brevity"
-        minSdkVersion(flutter.minSdkVersion)
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
