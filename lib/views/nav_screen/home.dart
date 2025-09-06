@@ -48,6 +48,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
   final GlobalKey _swipeUpKey = GlobalKey();
   final GlobalKey _chatbotKey = GlobalKey();
   final GlobalKey _headlineKey = GlobalKey();
+  final GlobalKey _likeKey = GlobalKey();
+  final GlobalKey _dislikeKey = GlobalKey();
+  final GlobalKey _speakerKey = GlobalKey();
 
   @override
   void initState() {
@@ -94,6 +97,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
       swipeUpKey: _swipeUpKey,
       chatbotKey: _chatbotKey,
       headlineKey: _headlineKey,
+      likeKey: _likeKey,
+      dislikeKey: _dislikeKey,
+      speakerKey: _speakerKey,
       onFinish: () async {
         await TutorialService.completeHomeScreenTutorial();
       },
@@ -184,6 +190,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                 article: article,
                 chatbotKey: index == 0 ? _chatbotKey : null,
                 headlineKey: index == 0 ? _headlineKey : null,
+                likeKey: index == 0 ? _likeKey : null,
+                dislikeKey: index == 0 ? _dislikeKey : null,
+                speakerKey: index == 0 ? _speakerKey : null,
               );
             },
           ),
@@ -255,11 +264,17 @@ class _NewsCard extends StatefulWidget {
   final Article article;
   final GlobalKey? chatbotKey;
   final GlobalKey? headlineKey;
+  final GlobalKey? likeKey;
+  final GlobalKey? dislikeKey;
+  final GlobalKey? speakerKey;
 
   const _NewsCard({
     required this.article,
     this.chatbotKey,
     this.headlineKey,
+    this.likeKey,
+    this.dislikeKey,
+    this.speakerKey,
   });
 
   @override
@@ -605,6 +620,7 @@ class _NewsCardState extends State<_NewsCard> {
                           ),
                           const Gap(8),
                           GestureDetector(
+                            key: widget.speakerKey,
                             onTap: _speak,
                             child: Container(
                               padding: const EdgeInsets.all(6),
@@ -647,6 +663,7 @@ class _NewsCardState extends State<_NewsCard> {
                     Row(
                       children: [
                         GestureDetector(
+                          key: widget.likeKey,
                           onTap: _handleLike,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
@@ -677,6 +694,7 @@ class _NewsCardState extends State<_NewsCard> {
                         ),
                         const Gap(12),
                         GestureDetector(
+                          key: widget.dislikeKey,
                           onTap: _handleDislike,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
