@@ -8,7 +8,10 @@ abstract class BookmarkState extends Equatable {
   List<Object> get props => [];
 }
 
-class BookmarkInitial extends BookmarkState {}
+class BookmarkInitial extends BookmarkState {
+  @override
+  String toString()=>"BookmarkInitial";
+}
 
 class BookmarksLoaded extends BookmarkState {
   final List<Article> bookmarks;
@@ -16,6 +19,9 @@ class BookmarksLoaded extends BookmarkState {
 
   @override
   List<Object> get props => [bookmarks];
+
+  @override 
+  String toString() => 'BookmarksLoaded { count: ${bookmarks.length} }';
 }
 
 class BookmarkError extends BookmarkState {
@@ -24,4 +30,7 @@ class BookmarkError extends BookmarkState {
 
   @override
   List<Object> get props => [message];
+
+  @override
+  String toString() => 'BookmarkError { message: $message }';
 }

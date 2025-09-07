@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:brevity/controller/bloc/bookmark_bloc/bookmark_bloc.dart';
 import 'package:brevity/controller/bloc/bookmark_bloc/bookmark_event.dart';
 import 'package:brevity/controller/bloc/bookmark_bloc/bookmark_state.dart';
@@ -10,13 +11,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:brevity/controller/services/reaction_service.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:brevity/controller/services/tutorial_service.dart';
 import '../common_widgets/end_of_news.dart';
+import '../common_widgets/tutorial_overlay_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   final NewsCategory category;
@@ -40,6 +43,15 @@ class _HomeScreenContent extends StatefulWidget {
 class _HomeScreenContentState extends State<_HomeScreenContent> {
   late PageController _pageController;
 
+  // Tutorial keys
+  final GlobalKey _swipeRightKey = GlobalKey();
+  final GlobalKey _swipeUpKey = GlobalKey();
+  final GlobalKey _chatbotKey = GlobalKey();
+  final GlobalKey _headlineKey = GlobalKey();
+  final GlobalKey _likeKey = GlobalKey();
+  final GlobalKey _dislikeKey = GlobalKey();
+  final GlobalKey _speakerKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +67,43 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
     }
 
     _pageController = PageController(initialPage: initialPage);
+
+    // Check if tutorial should be shown
+    _checkTutorial();
+  }
+
+  Future<void> _checkTutorial() async {
+    // Wait for the UI to build
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final shouldShow = await TutorialService.shouldShowHomeScreenTutorial();
+      if (shouldShow && mounted) {
+        await Future.delayed(const Duration(milliseconds: 2000)); // Increased delay
+        if (mounted) {
+          _showTutorial();
+        }
+      }
+    });
+  }
+
+  void _showTutorial() {
+    // print("Starting tutorial with keys:");
+    // print("Swipe key: ${_swipeGestureKey.currentContext != null}");
+    // print("Chatbot key: ${_chatbotKey.currentContext != null}");
+    // print("Headline key: ${_headlineKey.currentContext != null}");
+
+    TutorialOverlay.showTutorial(
+      context,
+      swipeRightKey: _swipeRightKey,
+      swipeUpKey: _swipeUpKey,
+      chatbotKey: _chatbotKey,
+      headlineKey: _headlineKey,
+      likeKey: _likeKey,
+      dislikeKey: _dislikeKey,
+      speakerKey: _speakerKey,
+      onFinish: () async {
+        await TutorialService.completeHomeScreenTutorial();
+      },
+    );
   }
 
   @override
@@ -107,14 +156,16 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
       );
     }
 
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        final velocity = details.primaryVelocity;
-        if (velocity != null && velocity > 300) {
-          context.goNamed('sidepage');
-        }
-      },
-      child: Stack(
+    return Stack(
+        children: [
+        GestureDetector(
+        onHorizontalDragEnd: (details) {
+      final velocity = details.primaryVelocity;
+      if (velocity != null && velocity > 300) {
+        context.goNamed('sidepage');
+      }
+    },
+    child: Stack(
         children: [
           PageView.builder(
             controller: _pageController,
@@ -135,7 +186,14 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                 return EndOfNewsScreen();
               }
               final article = articles[index];
-              return _NewsCard(article: article);
+              return _NewsCard(
+                article: article,
+                chatbotKey: index == 0 ? _chatbotKey : null,
+                headlineKey: index == 0 ? _headlineKey : null,
+                likeKey: index == 0 ? _likeKey : null,
+                dislikeKey: index == 0 ? _dislikeKey : null,
+                speakerKey: index == 0 ? _speakerKey : null,
+              );
             },
           ),
           SafeArea(
@@ -173,9 +231,20 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
               ),
             ),
           ),
+          // Tutorial target areas (invisible and non-blocking)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Stack(
+                children: [
+                  Container(key: _swipeRightKey),
+                  Container(key: _swipeUpKey),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
-    );
+    ),],);
   }
 
   Widget _buildLoadingShimmer() {
@@ -193,8 +262,20 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
 
 class _NewsCard extends StatefulWidget {
   final Article article;
+  final GlobalKey? chatbotKey;
+  final GlobalKey? headlineKey;
+  final GlobalKey? likeKey;
+  final GlobalKey? dislikeKey;
+  final GlobalKey? speakerKey;
 
-  const _NewsCard({required this.article});
+  const _NewsCard({
+    required this.article,
+    this.chatbotKey,
+    this.headlineKey,
+    this.likeKey,
+    this.dislikeKey,
+    this.speakerKey,
+  });
 
   @override
   State<_NewsCard> createState() => _NewsCardState();
@@ -211,6 +292,22 @@ class _NewsCardState extends State<_NewsCard> {
   void initState() {
     super.initState();
     initTts();
+    ReactionQueue().preloadReactions().then((_) {
+      try {
+        final liked = ReactionQueue().isArticleLiked(widget.article.url);
+        final disliked = ReactionQueue().isArticleDisliked(widget.article.url);
+        if (mounted) {
+          setState(() {
+            isLiked = liked;
+            isDisliked = disliked;
+          });
+        }
+      } catch (_) {
+        // ignore
+      }
+    }).catchError((_) {
+      // ignore preload errors
+    });
   }
 
   initTts() {
@@ -257,6 +354,10 @@ class _NewsCardState extends State<_NewsCard> {
   }
 
   void _handleLike() {
+    // Optimistic UI update
+    final previousLiked = isLiked;
+    final previousDisliked = isDisliked;
+
     setState(() {
       if (isLiked) {
         isLiked = false;
@@ -265,10 +366,24 @@ class _NewsCardState extends State<_NewsCard> {
         isDisliked = false;
       }
     });
+
+    // Enqueue background API call. Errors are swallowed inside the queue.
+    if (isLiked && !previousLiked) {
+      ReactionQueue().enqueueLike(widget.article);
+      // If we had previously disliked and now switched to like, enqueue removal of dislike
+      if (previousDisliked) ReactionQueue().enqueueRemoveDislike(widget.article);
+    } else if (!isLiked && previousLiked) {
+      ReactionQueue().enqueueRemoveLike(widget.article);
+    }
+
     Log.d('Article ${isLiked ? 'liked' : 'unliked'}: ${widget.article.title}');
   }
 
   void _handleDislike() {
+    // Optimistic UI update
+    final previousDisliked = isDisliked;
+    final previousLiked = isLiked;
+
     setState(() {
       if (isDisliked) {
         isDisliked = false;
@@ -277,6 +392,14 @@ class _NewsCardState extends State<_NewsCard> {
         isLiked = false;
       }
     });
+
+    if (isDisliked && !previousDisliked) {
+      ReactionQueue().enqueueDislike(widget.article);
+      if (previousLiked) ReactionQueue().enqueueRemoveLike(widget.article);
+    } else if (!isDisliked && previousDisliked) {
+      ReactionQueue().enqueueRemoveDislike(widget.article);
+    }
+
     Log.d(
       'Article ${isDisliked ? 'disliked' : 'undisliked'}: ${widget.article.title}',
     );
@@ -362,6 +485,7 @@ class _NewsCardState extends State<_NewsCard> {
                 _TappableHeadline(
                   title: widget.article.title,
                   article: widget.article,
+                  headlineKey: widget.headlineKey,
                 ),
                 const Gap(16),
                 Text(
@@ -393,22 +517,22 @@ class _NewsCardState extends State<_NewsCard> {
                                 ),
                               ),
                               child:
-                                  isLoading
-                                      ? SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white.withAlpha(204),
-                                        ),
-                                      )
-                                      : Icon(
-                                        isPlaying
-                                            ? Icons.stop
-                                            : Icons.volume_up_rounded,
-                                        color: Colors.white.withAlpha(204),
-                                        size: 16,
-                                      ),
+                              isLoading
+                                  ? SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white.withAlpha(204),
+                                ),
+                              )
+                                  : Icon(
+                                isPlaying
+                                    ? Icons.stop
+                                    : Icons.volume_up_rounded,
+                                color: Colors.white.withAlpha(204),
+                                size: 16,
+                              ),
                             ),
                           ),
                         ],
@@ -461,22 +585,22 @@ class _NewsCardState extends State<_NewsCard> {
                                 ),
                               ),
                               child:
-                                  isLoading
-                                      ? SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white.withAlpha(204),
-                                        ),
-                                      )
-                                      : Icon(
-                                        isPlaying
-                                            ? Icons.stop
-                                            : Icons.volume_up_rounded,
-                                        color: Colors.white.withAlpha(204),
-                                        size: 16,
-                                      ),
+                              isLoading
+                                  ? SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white.withAlpha(204),
+                                ),
+                              )
+                                  : Icon(
+                                isPlaying
+                                    ? Icons.stop
+                                    : Icons.volume_up_rounded,
+                                color: Colors.white.withAlpha(204),
+                                size: 16,
+                              ),
                             ),
                           ),
                         ],
@@ -496,6 +620,7 @@ class _NewsCardState extends State<_NewsCard> {
                           ),
                           const Gap(8),
                           GestureDetector(
+                            key: widget.speakerKey,
                             onTap: _speak,
                             child: Container(
                               padding: const EdgeInsets.all(6),
@@ -508,22 +633,22 @@ class _NewsCardState extends State<_NewsCard> {
                                 ),
                               ),
                               child:
-                                  isLoading
-                                      ? SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white.withAlpha(204),
-                                        ),
-                                      )
-                                      : Icon(
-                                        isPlaying
-                                            ? Icons.stop
-                                            : Icons.volume_up_rounded,
-                                        color: Colors.white.withAlpha(204),
-                                        size: 16,
-                                      ),
+                              isLoading
+                                  ? SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white.withAlpha(204),
+                                ),
+                              )
+                                  : Icon(
+                                isPlaying
+                                    ? Icons.stop
+                                    : Icons.volume_up_rounded,
+                                color: Colors.white.withAlpha(204),
+                                size: 16,
+                              ),
                             ),
                           ),
                         ],
@@ -538,6 +663,7 @@ class _NewsCardState extends State<_NewsCard> {
                     Row(
                       children: [
                         GestureDetector(
+                          key: widget.likeKey,
                           onTap: _handleLike,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
@@ -568,6 +694,7 @@ class _NewsCardState extends State<_NewsCard> {
                         ),
                         const Gap(12),
                         GestureDetector(
+                          key: widget.dislikeKey,
                           onTap: _handleDislike,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
@@ -611,6 +738,7 @@ class _NewsCardState extends State<_NewsCard> {
                     Spacer(),
 
                     IconButton(
+                      key: widget.chatbotKey,
                       onPressed:
                           () =>
                               context.pushNamed('chat', extra: widget.article),
@@ -632,10 +760,36 @@ class _NewsCardState extends State<_NewsCard> {
   }
 }
 
-class _TappableHeadline extends StatelessWidget {
+class _TappableHeadline extends StatefulWidget {
   final String title;
   final Article article;
-  const _TappableHeadline({required this.title, required this.article});
+  final GlobalKey? headlineKey;
+  const _TappableHeadline({required this.title, required this.article, this.headlineKey});
+
+  @override
+  State<_TappableHeadline> createState() => _TappableHeadlineState();
+}
+
+class _TappableHeadlineState extends State<_TappableHeadline> {
+  bool _isToggling = false;
+
+  void _handleToggleBookmark() async {
+    if (_isToggling) return; // Prevent multiple taps
+
+    setState(() {
+      _isToggling = true;
+    });
+
+    context.read<BookmarkBloc>().add(ToggleBookmarkEvent(widget.article));
+
+    // Reset the toggling state after a delay
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (mounted) {
+      setState(() {
+        _isToggling = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -644,15 +798,13 @@ class _TappableHeadline extends StatelessWidget {
       builder: (context, state) {
         final isBookmarked =
             state is BookmarksLoaded
-                ? state.bookmarks.any((a) => a.url == article.url)
+                ? state.bookmarks.any((a) => a.url == widget.article.url)
                 : false;
         return GestureDetector(
-          onTap:
-              () => context.read<BookmarkBloc>().add(
-                ToggleBookmarkEvent(article),
-              ),
+          key: widget.headlineKey,
+          onTap: _isToggling ? null : _handleToggleBookmark,
           child: Text(
-            title,
+            widget.title,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(

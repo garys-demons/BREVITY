@@ -260,6 +260,7 @@ userSchema.methods.getReactedNews = async function() {
     const likedNews = this.reactions.likes
         .filter(like => like.articleId) // Filter out any null references
         .map(like => ({
+            articleId: like.articleId._id ? like.articleId._id.toString() : undefined,
             headline: like.articleId.title,
             source: like.articleId.sourceName,
             description: like.articleId.description,
@@ -272,6 +273,7 @@ userSchema.methods.getReactedNews = async function() {
     const dislikedNews = this.reactions.dislikes
         .filter(dislike => dislike.articleId) // Filter out any null references
         .map(dislike => ({
+            articleId: dislike.articleId._id ? dislike.articleId._id.toString() : undefined,
             headline: dislike.articleId.title,
             source: dislike.articleId.sourceName, 
             description: dislike.articleId.description,

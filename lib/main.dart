@@ -32,6 +32,8 @@ import 'package:brevity/models/theme_model.dart';
 // ADD THESE IMPORTS
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:brevity/controller/services/notification_service.dart';
+// LOGGER IMPORT
+import 'package:brevity/utils/logger.dart';
 
 // Create a router with auth state handling
 final _routes = GoRouter(
@@ -41,6 +43,7 @@ final _routes = GoRouter(
       path: '/splash',
       name: 'splash',
       builder: (context, state) {
+        Log.d("[Main][RouteBuilder]: Building splash screen");
         return const SplashScreen();
       },
     ),
@@ -48,6 +51,7 @@ final _routes = GoRouter(
       path: '/auth',
       name: 'auth',
       builder: (context, state) {
+        Log.d("[Main][RouteBuilder]: Building auth screen");
         return const AuthScreen();
       },
     ),
@@ -57,6 +61,7 @@ final _routes = GoRouter(
       builder: (context, state) {
         final email = state.uri.queryParameters['email'] ?? '';
         final isFromLogin = state.uri.queryParameters['isFromLogin'] == 'true';
+        Log.d("[Main][RouteBuilder]: Building email verification screen for email: $email");
         return EmailVerificationScreen(
           email: email,
           isFromLogin: isFromLogin,
@@ -67,6 +72,7 @@ final _routes = GoRouter(
       path: '/contactUs',
       name: 'contactUs',
       builder: (context, state) {
+        Log.d("[Main][RouteBuilder]: Building contact us screen");
         return const ContactUsScreen();
       },
     ),
@@ -74,6 +80,7 @@ final _routes = GoRouter(
       path: '/aboutUs',
       name: 'aboutUs',
       builder: (context, state) {
+        Log.d("[Main][RouteBuilder]: Building about us screen");
         return const AboutUsScreen();
       },
     ),
@@ -81,162 +88,179 @@ final _routes = GoRouter(
       path: '/intro',
       name: 'intro',
       builder: (context, state) {
+        Log.d("[Main][RouteBuilder]: Building introduction screen");
         return const IntroductionScreen();
       },
     ),
     GoRoute(
       path: '/sidepage',
       name: 'sidepage',
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const SidePage(),
-        transitionsBuilder: (
-            context,
-            animation,
-            secondaryAnimation,
-            child,
-            ) {
-          const begin = Offset(-1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-          return SlideTransition(
-            position: Tween(
-              begin: begin,
-              end: end,
-            ).chain(CurveTween(curve: curve)).animate(animation),
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 225),
-      ),
+      pageBuilder: (context, state) {
+        Log.d("[Main][RouteBuilder]: Building side page with slide transition");
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: const SidePage(),
+          transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+              ) {
+            const begin = Offset(-1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+            return SlideTransition(
+              position: Tween(
+                begin: begin,
+                end: end,
+              ).chain(CurveTween(curve: curve)).animate(animation),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 225),
+        );
+      },
       routes: [
         GoRoute(
           path: '/bookmark',
           name: 'bookmark',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const BookmarkScreen(),
-            transitionsBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-                ) {
-              // Combine scale and fade animations
-              return Align(
-                alignment: Alignment.center,
-                child: FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: animation.drive(
-                      Tween<double>(
-                        begin: 0.0,
-                        end: 1.0,
-                      ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+          pageBuilder: (context, state) {
+            Log.d("[Main][RouteBuilder]: Building bookmark screen with scale/fade transition");
+            return CustomTransitionPage(
+              key: state.pageKey,
+              child: const BookmarkScreen(),
+              transitionsBuilder: (
+                  context,
+                  animation,
+                  secondaryAnimation,
+                  child,
+                  ) {
+                // Combine scale and fade animations
+                return Align(
+                  alignment: Alignment.center,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation.drive(
+                        Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   ),
-                ),
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 225),
-          ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 225),
+            );
+          },
         ),
         GoRoute(
           path: 'settings', // CORRECTED: Removed leading '/'
           name: 'settings',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const SettingsScreen(),
-            transitionsBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-                ) {
-              return Align(
-                alignment: Alignment.center,
-                child: FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: animation.drive(
-                      Tween<double>(
-                        begin: 0.0,
-                        end: 1.0,
-                      ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+          pageBuilder: (context, state) {
+            Log.d("[Main][RouteBuilder]: Building settings screen with scale/fade transition");
+            return CustomTransitionPage(
+              key: state.pageKey,
+              child: const SettingsScreen(),
+              transitionsBuilder: (
+                  context,
+                  animation,
+                  secondaryAnimation,
+                  child,
+                  ) {
+                return Align(
+                  alignment: Alignment.center,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation.drive(
+                        Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   ),
-                ),
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 225),
-          ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 225),
+            );
+          },
         ),
         GoRoute(
           path: 'profile', // CORRECTED: Removed leading '/'
           name: 'profile',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: const ProfileScreen(),
-            transitionsBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-                ) {
-              return Align(
-                alignment: Alignment.center,
-                child: FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: animation.drive(
-                      Tween<double>(
-                        begin: 0.0,
-                        end: 1.0,
-                      ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+          pageBuilder: (context, state) {
+            Log.d("[Main][RouteBuilder]: Building profile screen with scale/fade transition");
+            return CustomTransitionPage(
+              key: state.pageKey,
+              child: const ProfileScreen(),
+              transitionsBuilder: (
+                  context,
+                  animation,
+                  secondaryAnimation,
+                  child,
+                  ) {
+                return Align(
+                  alignment: Alignment.center,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation.drive(
+                        Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   ),
-                ),
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 225),
-          ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 225),
+            );
+          },
         ),
         GoRoute(
           path: 'searchResults', // CORRECTED: Removed leading '/'
           name: 'searchResults',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            key: state.pageKey,
-            child: SearchResultsScreen(
-              query: state.uri.queryParameters['query']!, // Only query parameter
-            ),
-            transitionsBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-                ) {
-              // Combine scale and fade animations
-              return Align(
-                alignment: Alignment.center,
-                child: FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: animation.drive(
-                      Tween<double>(
-                        begin: 0.0,
-                        end: 1.0,
-                      ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+          pageBuilder: (context, state) {
+            final query = state.uri.queryParameters['query'] ?? '';
+            Log.d("[Main][RouteBuilder]: Building search results screen for query: $query");
+            return CustomTransitionPage(
+              key: state.pageKey,
+              child: SearchResultsScreen(
+                query: state.uri.queryParameters['query']!, // Only query parameter
+              ),
+              transitionsBuilder: (
+                  context,
+                  animation,
+                  secondaryAnimation,
+                  child,
+                  ) {
+                // Combine scale and fade animations
+                return Align(
+                  alignment: Alignment.center,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation.drive(
+                        Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   ),
-                ),
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 225),
-          ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 225),
+            );
+          },
         ),
       ],
     ),
@@ -244,9 +268,9 @@ final _routes = GoRouter(
       path: '/home/:category',
       name: 'home',
       pageBuilder: (context, state) {
-        final category = NewsCategory.fromIndex(
-          int.parse(state.pathParameters['category'] ?? '0'),
-        );
+        final categoryIndex = int.parse(state.pathParameters['category'] ?? '0');
+        final category = NewsCategory.fromIndex(categoryIndex);
+        Log.d("[Main][RouteBuilder]: Building home screen for category: ${category.name} (index: $categoryIndex)");
         return CustomTransitionPage(
           key: state.pageKey,
           child: HomeScreen(category: category),
@@ -269,50 +293,63 @@ final _routes = GoRouter(
     GoRoute(
       path: '/chat',
       name: 'chat',
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: ChatScreen(article: state.extra as Article),
-        transitionsBuilder: (
-            context,
-            animation,
-            secondaryAnimation,
-            child,
-            ) {
-          // Combine scale and fade animations
-          return Align(
-            alignment: Alignment.center,
-            child: FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: animation.drive(
-                  Tween<double>(
-                    begin: 0.0,
-                    end: 1.0,
-                  ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+      pageBuilder: (context, state) {
+        final article = state.extra as Article?;
+        Log.d("[Main][RouteBuilder]: Building chat screen for article: ${article?.title ?? 'unknown'}");
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: ChatScreen(article: article!),
+          transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+              ) {
+            // Combine scale and fade animations
+            return Align(
+              alignment: Alignment.center,
+              child: FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: animation.drive(
+                    Tween<double>(
+                      begin: 0.0,
+                      end: 1.0,
+                    ).chain(CurveTween(curve: Curves.easeInOutQuad)),
+                  ),
+                  child: child,
                 ),
-                child: child,
               ),
-            ),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 225),
-      ),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 225),
+        );
+      },
     ),
   ],
   // Add redirect logic to handle authentication state
   redirect: (context, state) {
+    Log.d("[Main][Router]: Handling redirect for route: ${state.matchedLocation}");
+
     // Allow access to splash screen
-    if (state.matchedLocation == '/splash') return null;
+    if (state.matchedLocation == '/splash') {
+      Log.d("[Main][Router]: Allowing access to splash screen");
+      return null;
+    }
 
     // Check for routes that should be accessible without authentication
     final allowedPaths = ['/auth', '/intro', '/email-verification'];
-    if (allowedPaths.contains(state.matchedLocation)) return null;
+    if (allowedPaths.contains(state.matchedLocation)) {
+      Log.d("[Main][Router]: Allowing access to unauthenticated route: ${state.matchedLocation}");
+      return null;
+    }
 
     // Get the AuthService instance
     final authService = AuthService();
 
     // If user is not signed in, redirect to auth
     if (!authService.isAuthenticated) {
+      Log.w("[Main][Router]: User not authenticated, redirecting to /auth");
       return '/auth';
     }
 
@@ -320,66 +357,115 @@ final _routes = GoRouter(
     if (authService.isAuthenticated && !authService.isEmailVerified) {
       final currentUser = authService.currentUser;
       if (currentUser != null) {
+        Log.w("[Main][Router]: User authenticated but email not verified, redirecting to email verification");
         return '/email-verification?email=${Uri.encodeComponent(currentUser.email)}&isFromLogin=true';
       }
     }
 
     // Allow access to authenticated routes
+    Log.d("[Main][Router]: User authenticated and verified, allowing access to: ${state.matchedLocation}");
     return null;
   },
 );
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  try {
+    Log.i("[Main][main]: App initialization started");
 
-  // ADD THIS: Initialize timezone data
-  tz.initializeTimeZones();
+    Log.d("[Main][main]: Ensuring widgets binding initialization");
+    WidgetsFlutterBinding.ensureInitialized();
+    Log.d("[Main][main]: Widgets binding initialization completed");
 
-  // Initialize your AuthService
-  await AuthService().initializeAuth();
+    Log.d("[Main][main]: Initializing Firebase");
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    Log.i("[Main][main]: Firebase initialization completed");
 
-  // ADD THIS: Initialize notification service
-  final notificationService = NotificationService();
-  await notificationService.initialize();
+    Log.d("[Main][main]: Setting system UI mode to immersive sticky");
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    Log.d("[Main][main]: System UI mode set successfully");
 
-  await dotenv.load(fileName: ".env");
+    Log.d("[Main][main]: Initializing timezone data");
+    tz.initializeTimeZones();
+    Log.d("[Main][main]: Timezone data initialization completed");
 
-  final bookmarkRepository = BookmarkServices();
-  final newsService = NewsService();
+    Log.d("[Main][main]: Initializing AuthService");
+    await AuthService().initializeAuth();
+    Log.i("[Main][main]: AuthService initialization completed");
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    Log.d("[Main][main]: Initializing notification service");
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+    Log.i("[Main][main]: Notification service initialization completed");
 
-  runApp(
-    MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider.value(value: newsService),
-        RepositoryProvider.value(value: bookmarkRepository),
-      ],
-      child: MultiBlocProvider(
+    Log.d("[Main][main]: Loading environment variables");
+    await dotenv.load(fileName: ".env");
+    Log.d("[Main][main]: Environment variables loaded successfully");
+
+    Log.d("[Main][main]: Creating service instances");
+    final bookmarkRepository = BookmarkServices();
+    final newsService = NewsService();
+    Log.d("[Main][main]: Service instances created successfully");
+
+    Log.d("[Main][main]: Setting preferred device orientations");
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    Log.d("[Main][main]: Device orientations set to portrait only");
+
+    Log.i("[Main][main]: All initialization completed successfully, starting app");
+    Log.d("[Main][main]: Setting up widget tree with providers and blocs");
+
+    runApp(
+      MultiRepositoryProvider(
         providers: [
-          BlocProvider(create: (context) => NewsBloc(newsService: newsService)),
-          BlocProvider(create: (context) => BookmarkBloc(bookmarkRepository)),
-          BlocProvider(create: (context) => UserProfileCubit()),
-          BlocProvider(create: (context) => ThemeCubit()..initializeTheme()),
+          RepositoryProvider.value(value: newsService),
+          RepositoryProvider.value(value: bookmarkRepository),
         ],
-        child: const MyApp(),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) {
+              Log.d("[Main][BlocProvider]: Creating NewsBloc");
+              return NewsBloc(newsService: newsService);
+            }),
+            BlocProvider(create: (context) {
+              Log.d("[Main][BlocProvider]: Creating BookmarkBloc");
+              return BookmarkBloc(bookmarkRepository);
+            }),
+            BlocProvider(create: (context) {
+              Log.d("[Main][BlocProvider]: Creating UserProfileCubit");
+              return UserProfileCubit();
+            }),
+            BlocProvider(create: (context) {
+              Log.d("[Main][BlocProvider]: Creating ThemeCubit and initializing theme");
+              return ThemeCubit()..initializeTheme();
+            }),
+          ],
+          child: const MyApp(),
+        ),
       ),
-    ),
-  );
+    );
+
+    Log.i("[Main][main]: App started successfully, runApp() executed");
+
+  } catch (error, stackTrace) {
+    Log.e("[Main][main]: Critical error during app initialization", error, stackTrace);
+    // You might want to show an error screen or handle this gracefully
+    rethrow;
+  }
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
+    Log.d("[Main][MyApp]: Building app widget tree");
+
     // UPDATED: Wrap with BlocBuilder to react to theme changes
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
+        Log.d("[Main][MyApp]: Building MaterialApp with theme: ${state.currentTheme.name}");
         return MaterialApp.router(
           title: 'Brevity',
           debugShowCheckedModeBanner: false,
